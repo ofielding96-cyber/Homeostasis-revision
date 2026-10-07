@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homeostasis revision resource</title>
+<style>
+  :root {
+    --bg:#f7f6f2; --card:#ffffff; --text:#1f1f1d; --muted:#5f5e5a; --border:#d9d7cf;
+    --accent:#0F6E56; --accent-bg:#E1F5EE; --accent-text:#085041;
+    --purple:#534AB7; --purple-bg:#EEEDFE; --purple-text:#3C3489;
+    --good:#3B6D11; --good-bg:#EAF3DE; --bad:#A32D2D; --bad-bg:#FCEBEB; --amber-bg:#FAEEDA; --amber-text:#633806;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#1c1c1a; --card:#262624; --text:#ecebe4; --muted:#b4b2a9; --border:#444441;
+      --accent:#5DCAA5; --accent-bg:#04342C; --accent-text:#9FE1CB;
+      --purple:#AFA9EC; --purple-bg:#26215C; --purple-text:#CECBF6;
+      --good:#97C459; --good-bg:#173404; --bad:#F09595; --bad-bg:#501313; --amber-bg:#412402; --amber-text:#FAC775;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+  header { padding:28px 16px 8px; max-width:900px; margin:0 auto; }
+  h1 { font-size:26px; font-weight:500; margin:0 0 4px; }
+  header p { margin:0; color:var(--muted); }
+  nav { position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--border); padding:10px 16px; }
+  .tabs { max-width:900px; margin:0 auto; display:flex; gap:8px; flex-wrap:wrap; }
+  .tab { font:inherit; padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; }
+  .tab[aria-selected="true"] { background:var(--accent); border-color:var(--accent); color:#fff; }
+  @media (prefers-color-scheme: dark) { .tab[aria-selected="true"] { color:#04342C; } }
+  main { max-width:900px; margin:0 auto; padding:20px 16px 56px; }
+  section[hidden] { display:none; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px; }
+  .chip { font:inherit; font-size:14px; padding:4px 12px; border-radius:999px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; text-decoration:none; }
+  .chip:hover { border-color:var(--accent); }
+  .chip.on { background:var(--accent-bg); border-color:var(--accent); color:var(--accent-text); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin:0 0 20px; }
+  .card h2 { font-size:20px; font-weight:500; margin:0 0 10px; color:var(--accent-text); }
+  .card ul { margin:0; padding-left:20px; }
+  .card li { margin:0 0 6px; }
+  .flow { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:14px 0 4px; }
+  .flow .step { background:var(--purple-bg); color:var(--purple-text); padding:4px 10px; border-radius:6px; font-size:14px; }
+  .flow .arr { color:var(--muted); }
+  .flowlabel { font-size:13px; color:var(--muted); margin:14px 0 0; }
+  table { width:100%; border-collapse:collapse; margin:14px 0 0; font-size:15px; }
+  th, td { text-align:left; padding:8px 10px; border:1px solid var(--border); vertical-align:top; }
+  th { background:var(--accent-bg); color:var(--accent-text); font-weight:500; }
+  .fc-wrap { max-width:560px; margin:0 auto; }
+  .fc { width:100%; min-height:240px; font:inherit; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; cursor:pointer; color:var(--text); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; }
+  .fc.back { background:var(--purple-bg); border-color:var(--purple); color:var(--purple-text); }
+  .fc .side { font-size:13px; color:var(--muted); }
+  .fc.back .side { color:var(--purple-text); }
+  .fc .txt { font-size:22px; font-weight:500; }
+  .fc.back .txt { font-size:18px; font-weight:400; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center; margin:14px 0; }
+  .btn { font:inherit; padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; }
+  .btn:hover { border-color:var(--accent); }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  @media (prefers-color-scheme: dark) { .btn.primary { color:#04342C; } }
+  .muted { color:var(--muted); font-size:14px; }
+  .opt { display:block; width:100%; text-align:left; font:inherit; padding:12px 14px; margin:0 0 10px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; }
+  .opt:hover:enabled { border-color:var(--accent); }
+  .opt.ok { background:var(--good-bg); border-color:var(--good); }
+  .opt.no { background:var(--bad-bg); border-color:var(--bad); }
+  .opt:disabled { cursor:default; color:var(--text); opacity:1; }
+  .fb { padding:12px 14px; border-radius:8px; background:var(--amber-bg); color:var(--amber-text); margin:4px 0 14px; font-size:15px; }
+  .bar { height:8px; background:var(--border); border-radius:4px; overflow:hidden; margin:0 0 16px; }
+  .bar span { display:block; height:100%; background:var(--accent); }
+  .tag { display:inline-block; font-size:12px; padding:2px 10px; border-radius:999px; background:var(--accent-bg); color:var(--accent-text); margin-right:8px; }
+  .marks { display:inline-block; font-size:12px; padding:2px 10px; border-radius:999px; background:var(--purple-bg); color:var(--purple-text); }
+  textarea { width:100%; min-height:90px; font:inherit; padding:10px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); margin:10px 0; resize:vertical; }
+  .ms { background:var(--good-bg); border-radius:8px; padding:12px 14px; margin-top:10px; }
+  .ms ul { margin:0; padding-left:20px; }
+  .ms p { margin:8px 0 0; font-size:14px; color:var(--muted); }
+  .score { font-size:40px; font-weight:500; margin:0; color:var(--accent-text); }
+  @media print { nav, .no-print { display:none !important; } body { background:#fff; } .card { break-inside:avoid; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Homeostasis revision resource</h1>
+  <p>Year 11 AQA GCSE Biology: Homeostasis and Response</p>
+</header>
+
+<nav class="no-print">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="notes" aria-selected="true">Notes</button>
+    <button class="tab" role="tab" data-tab="cards" aria-selected="false">Flashcards</button>
+    <button class="tab" role="tab" data-tab="quiz" aria-selected="false">Quiz</button>
+    <button class="tab" role="tab" data-tab="exam" aria-selected="false">Exam questions</button>
+  </div>
+</nav>
+
+<main>
+  <section id="notes"></section>
+
+  <section id="cards" hidden>
+    <div class="chips" id="cardFilter"></div>
+    <div class="fc-wrap">
+      <button class="fc" id="fc" aria-live="polite"></button>
+      <div class="row">
+        <button class="btn" id="fcPrev">Previous</button>
+        <span class="muted" id="fcCount"></span>
+        <button class="btn" id="fcNext">Next</button>
+      </div>
+      <div class="row"><button class="btn" id="fcShuffle">Shuffle</button></div>
+      <p class="muted" style="text-align:center">Click the card to flip it. Try to answer out loud before you flip.</p>
+    </div>
+  </section>
+
+  <section id="quiz" hidden>
+    <div class="chips" id="quizFilter"></div>
+    <div id="quizBody"></div>
+  </section>
+
+  <section id="exam" hidden>
+    <p class="muted">Write your answer first, then reveal the mark scheme and mark yourself honestly.</p>
+    <div id="examBody"></div>
+  </section>
+</main>
+
+<script>
+const T = {
+  principles:"Principles of homeostasis", nervous:"Nervous system", endocrine:"Endocrine system",
+  glucose:"Blood glucose", repro:"Reproduction", plants:"Plant hormones"
+};
+
+const notes = [
+ { id:"principles", points:[
+   "<strong>Homeostasis</strong> is the regulation of the internal conditions of a cell or organism to maintain optimum conditions for function, in response to internal and external changes.",
+   "Cells need stable conditions so that enzymes and other cell processes can work properly.",
+   "Automatic control systems have three parts: <strong>receptors</strong> (detect stimuli), <strong>coordination centres</strong> (receive and process information, then send instructions, e.g. brain, spinal cord, pancreas) and <strong>effectors</strong> (muscles or glands that bring about the response).",
+   "<strong>Negative feedback</strong>: a change is detected and the response reverses it, so the condition returns to normal."
+  ], flowLabel:"Control system", flow:["Stimulus","Receptor","Coordination centre","Effector","Response"] },
+
+ { id:"nervous", points:[
+   "The nervous system lets us react to our surroundings and coordinate our behaviour.",
+   "The <strong>central nervous system (CNS)</strong> is the brain and spinal cord.",
+   "<strong>Sensory neurones</strong> carry impulses from receptors to the CNS. <strong>Relay neurones</strong> connect neurones inside the CNS. <strong>Motor neurones</strong> carry impulses from the CNS to effectors.",
+   "Effectors are muscles (contract) or glands (secrete chemicals such as hormones).",
+   "<strong>Reflex actions</strong> are automatic and rapid and do not involve the conscious part of the brain. They protect the body from harm.",
+   "A <strong>synapse</strong> is the gap between two neurones. The impulse triggers the release of <strong>neurotransmitter</strong> chemicals, which diffuse across the gap and bind to receptor molecules on the next neurone, starting a new electrical impulse.",
+   "<strong>Required practical: reaction time.</strong> A partner drops a ruler and you catch it. A shorter distance caught means a faster reaction time. Control variables (same hand, same ruler, same drop height), repeat and calculate a mean. Change only one independent variable, e.g. caffeine, practice or distraction."
+  ], flowLabel:"Reflex arc", flow:["Stimulus","Receptor","Sensory neurone","Relay neurone","Motor neurone","Effector","Response"] },
+
+ { id:"endocrine", points:[
+   "The <strong>endocrine system</strong> is made up of glands that secrete <strong>hormones</strong> directly into the bloodstream.",
+   "Hormones are chemical messengers. The blood carries them to <strong>target organs</strong>, where they produce an effect.",
+   "The <strong>pituitary gland</strong> in the brain is the 'master gland'. It secretes hormones (e.g. FSH and LH) that act on other glands.",
+   "Other glands include the <strong>pancreas</strong> (insulin, glucagon), <strong>ovaries</strong> (oestrogen, progesterone) and <strong>testes</strong> (testosterone)."
+  ], table:{ head:["","Nervous system","Hormonal system"], rows:[
+   ["Message","Electrical impulses","Chemical hormones"],
+   ["Pathway","Neurones","Blood"],
+   ["Speed","Very fast","Slower"],
+   ["Duration of effect","Short","Longer-lasting"],
+   ["Area affected","Precise, specific area","Target organs, often wider"]
+  ]} },
+
+ { id:"glucose", points:[
+   "Blood glucose concentration is monitored and controlled by the <strong>pancreas</strong>.",
+   "<strong>Too high</strong> (e.g. after a meal): the pancreas releases <strong>insulin</strong>. Glucose moves from the blood into cells. In the liver and muscles, excess glucose is converted to <strong>glycogen</strong> for storage. Blood glucose falls.",
+   "<strong>Too low</strong>: the pancreas releases <strong>glucagon</strong>. The liver converts glycogen back to glucose and releases it into the blood. Blood glucose rises.",
+   "Insulin and glucagon work in opposite directions, which is negative feedback."
+  ], flowLabel:"After a meal", flow:["Blood glucose rises","Pancreas releases insulin","Cells take up glucose; liver stores glycogen","Blood glucose falls"],
+  table:{ head:["","Type 1 diabetes","Type 2 diabetes"], rows:[
+   ["Cause","Pancreas produces little or no insulin","Body cells no longer respond properly to insulin"],
+   ["Treatment","Insulin injections (and careful diet)","Carbohydrate-controlled diet and exercise"],
+   ["Risk factor","Not linked to lifestyle","Obesity"]
+  ]} },
+
+ { id:"repro", points:[
+   "At puberty, reproductive hormones trigger the secondary sexual characteristics.",
+   "<strong>Testosterone</strong> is the main male reproductive hormone. It is produced by the testes and stimulates sperm production.",
+   "<strong>Oestrogen</strong> is the main female reproductive hormone. It is produced by the ovaries. Once a month an egg matures and is released from an ovary (<strong>ovulation</strong>).",
+   "The <strong>menstrual cycle</strong> lasts about 28 days. The uterus lining builds up, an egg is released around day 14, the lining is maintained, and it is shed if the egg is not fertilised.",
+   "<strong>Contraception.</strong> Hormonal methods: the oral contraceptive (the pill) contains oestrogen and progesterone and stops FSH being produced, so eggs do not mature. Implants, injections and patches release progesterone slowly. Non-hormonal methods: condoms and diaphragms (barrier), IUDs, spermicides, abstaining, surgical sterilisation.",
+   "<strong>Treating infertility.</strong> FSH and LH can be given as a fertility drug to stimulate ovulation. In <strong>IVF</strong>, FSH and LH stimulate several eggs to mature. The eggs are collected, fertilised with sperm in a lab and grow into embryos. One or two embryos are then placed in the uterus.",
+   "<strong>Evaluating IVF:</strong> it helps infertile couples have children, but it is physically and emotionally stressful, has a low success rate and can lead to multiple births, which carry health risks."
+  ], table:{ head:["Hormone","Made in","Role in the menstrual cycle"], rows:[
+   ["FSH","Pituitary gland","Causes an egg to mature in the ovary; stimulates the ovaries to produce oestrogen"],
+   ["LH","Pituitary gland","Stimulates the release of the egg (ovulation)"],
+   ["Oestrogen","Ovaries","Causes the lining of the uterus to grow and repair"],
+   ["Progesterone","Ovaries","Maintains the lining of the uterus"]
+  ]} },
+
+ { id:"plants", points:[
+   "Plants respond to stimuli with growth responses called <strong>tropisms</strong>. Growing towards a stimulus is positive; growing away is negative.",
+   "<strong>Auxin</strong> is made in the shoot tip and moves to the shaded side. It makes cells there elongate faster, so the shoot bends <strong>towards light</strong> (positive phototropism).",
+   "In roots, auxin collects on the lower side and <strong>inhibits</strong> cell elongation, so the root bends downwards (positive gravitropism). Shoots show negative gravitropism.",
+   "<strong>Gibberellins</strong> help start seed germination (and can promote flowering and larger fruit). <strong>Ethene</strong> controls cell division and the ripening of fruits.",
+   "<strong>Uses:</strong> auxins as selective weedkillers and in rooting powder for cuttings; ethene to ripen fruit during transport and storage; gibberellins to end seed dormancy and increase fruit size."
+  ], flowLabel:"Phototropism", flow:["Light from one side","Auxin moves to shaded side","Shaded cells elongate more","Shoot bends towards light"] }
+];
+
+const cards = [
+ ["Homeostasis","Regulation of the internal conditions of a cell or organism to maintain optimum conditions for function.","principles"],
+ ["Stimulus","A change in the environment that is detected by a receptor.","principles"],
+ ["Receptor","Detects a stimulus.","principles"],
+ ["Coordination centre","Receives and processes information from receptors and sends out instructions (e.g. brain, spinal cord, pancreas).","principles"],
+ ["Effector","A muscle or gland that brings about a response.","principles"],
+ ["Negative feedback","A change is detected and the response reverses it, returning the condition to normal.","principles"],
+ ["CNS","Central nervous system: the brain and spinal cord.","nervous"],
+ ["Sensory neurone","Carries impulses from receptors to the CNS.","nervous"],
+ ["Relay neurone","Connects sensory and motor neurones inside the CNS.","nervous"],
+ ["Motor neurone","Carries impulses from the CNS to effectors.","nervous"],
+ ["Reflex action","An automatic, rapid response that does not involve the conscious brain and protects the body from harm.","nervous"],
+ ["Synapse","The gap between two neurones.","nervous"],
+ ["Neurotransmitter","A chemical released at a synapse that diffuses across the gap and triggers an impulse in the next neurone.","nervous"],
+ ["Reaction time","The time taken to respond to a stimulus. In the ruler drop test, a shorter distance caught means a faster reaction time.","nervous"],
+ ["Hormone","A chemical messenger secreted by a gland into the blood.","endocrine"],
+ ["Endocrine gland","A gland that secretes hormones directly into the bloodstream.","endocrine"],
+ ["Pituitary gland","The 'master gland' in the brain. Its hormones act on other glands.","endocrine"],
+ ["Target organ","An organ that responds to a particular hormone.","endocrine"],
+ ["Insulin","Hormone from the pancreas that lowers blood glucose: glucose moves into cells and is stored as glycogen.","glucose"],
+ ["Glucagon","Hormone from the pancreas that raises blood glucose: the liver converts glycogen to glucose.","glucose"],
+ ["Glycogen","The storage form of glucose, kept in the liver and muscles.","glucose"],
+ ["Type 1 diabetes","The pancreas produces little or no insulin. Treated with insulin injections.","glucose"],
+ ["Type 2 diabetes","Body cells no longer respond properly to insulin. Linked to obesity. Treated with diet and exercise.","glucose"],
+ ["Testosterone","Main male reproductive hormone, made in the testes. Stimulates sperm production.","repro"],
+ ["Oestrogen","Main female reproductive hormone, made in the ovaries. Causes the uterus lining to grow.","repro"],
+ ["FSH","From the pituitary. Causes an egg to mature and stimulates oestrogen production.","repro"],
+ ["LH","From the pituitary. Stimulates ovulation (release of the egg).","repro"],
+ ["Progesterone","Made in the ovaries. Maintains the lining of the uterus.","repro"],
+ ["Ovulation","The release of a mature egg from an ovary, around day 14 of the cycle.","repro"],
+ ["IVF","In vitro fertilisation: eggs are collected, fertilised in a lab, and one or two embryos are placed in the uterus.","repro"],
+ ["Tropism","A plant growth response to a stimulus, towards (positive) or away from (negative) it.","plants"],
+ ["Auxin","Plant hormone that controls elongation of cells, causing phototropism and gravitropism.","plants"],
+ ["Gibberellins","Plant hormones that help start seed germination.","plants"],
+ ["Ethene","Plant hormone that controls cell division and the ripening of fruit.","plants"]
+];
+
+/* First option is always the correct one; options are shuffled when the quiz runs. */
+const quiz = [
+ {t:"principles",q:"Which part of a control system detects a stimulus?",o:["Receptor","Effector","Coordination centre","Hormone"],e:"Receptors detect stimuli. Coordination centres process the information and effectors respond."},
+ {t:"principles",q:"Which of these can act as an effector?",o:["A muscle","A sensory neurone","The spinal cord","A receptor cell in the skin"],e:"Effectors are muscles or glands. The spinal cord is a coordination centre."},
+ {t:"principles",q:"What does negative feedback do?",o:["Reverses a change so the condition returns to normal","Makes a change bigger","Stops the body responding to changes","Keeps conditions constantly changing"],e:"Negative feedback counteracts a change and brings the condition back to its normal level."},
+ {t:"nervous",q:"What is the central nervous system made up of?",o:["The brain and spinal cord","The brain and sensory neurones","The spinal cord and motor neurones","Receptors and effectors"],e:"The CNS is the brain and spinal cord."},
+ {t:"nervous",q:"Which is the correct order for a reflex arc?",o:["Receptor, sensory neurone, relay neurone, motor neurone, effector","Receptor, motor neurone, relay neurone, sensory neurone, effector","Effector, sensory neurone, relay neurone, motor neurone, receptor","Receptor, relay neurone, sensory neurone, motor neurone, effector"],e:"Sensory neurones carry the impulse to the CNS, relay neurones pass it on, and motor neurones carry it to the effector."},
+ {t:"nervous",q:"What crosses a synapse?",o:["Neurotransmitter chemicals diffusing across the gap","An electrical impulse jumping across the gap","Hormones carried in the blood","The sensory neurone itself"],e:"The electrical impulse triggers neurotransmitter release. The chemical diffuses across and starts a new impulse."},
+ {t:"nervous",q:"In the ruler drop test, a student catches the ruler after a shorter distance. What does this show?",o:["A faster reaction time","A slower reaction time","The result is invalid","Their reaction time has not changed"],e:"The less the ruler falls before it is caught, the faster the reaction."},
+ {t:"nervous",q:"Why are reflex actions useful?",o:["They are fast and automatic, so they protect the body from harm","They are slow but very accurate","They need careful conscious thought","They are controlled by hormones"],e:"Reflexes bypass the conscious brain, so the response is rapid."},
+ {t:"endocrine",q:"How are hormones carried to their target organs?",o:["In the blood","Along neurones","Through the spinal cord","By diffusion through the air"],e:"Endocrine glands secrete hormones directly into the bloodstream."},
+ {t:"endocrine",q:"Compared with the nervous system, the effects of hormones are usually:",o:["Slower and longer-lasting","Faster and shorter-lasting","Faster and longer-lasting","Slower and shorter-lasting"],e:"Hormones travel in the blood, so they act more slowly, but their effects last longer."},
+ {t:"endocrine",q:"Which gland is known as the 'master gland'?",o:["Pituitary gland","Pancreas","Ovary","Testis"],e:"The pituitary secretes hormones that act on other glands."},
+ {t:"glucose",q:"Blood glucose rises after a meal. Which hormone is released?",o:["Insulin","Glucagon","Oestrogen","FSH"],e:"The pancreas releases insulin, which lowers blood glucose."},
+ {t:"glucose",q:"What is the effect of glucagon?",o:["The liver converts glycogen to glucose","Glucose is stored as glycogen","Body cells take up more glucose","The pancreas stops working"],e:"Glucagon raises blood glucose by causing glycogen to be broken down to glucose in the liver."},
+ {t:"glucose",q:"What causes type 1 diabetes?",o:["The pancreas does not produce enough insulin","Body cells stop responding to insulin","Eating too much sugar","Too much glucagon"],e:"In type 1 diabetes the pancreas produces little or no insulin."},
+ {t:"glucose",q:"Which is a risk factor for type 2 diabetes?",o:["Obesity","Being underweight","Regular exercise","A carbohydrate-controlled diet"],e:"Obesity is a major risk factor. Diet and exercise help to manage type 2 diabetes."},
+ {t:"repro",q:"Which hormone stimulates the release of an egg?",o:["LH","FSH","Progesterone","Testosterone"],e:"LH stimulates ovulation. FSH causes the egg to mature."},
+ {t:"repro",q:"What is the role of progesterone in the menstrual cycle?",o:["It maintains the lining of the uterus","It makes an egg mature","It stimulates the release of an egg","It stimulates sperm production"],e:"Progesterone keeps the uterus lining in place."},
+ {t:"repro",q:"Which hormone is produced by the testes?",o:["Testosterone","Oestrogen","FSH","Progesterone"],e:"Testosterone is the main male reproductive hormone."},
+ {t:"repro",q:"How does the oral contraceptive pill help prevent pregnancy?",o:["It stops FSH being produced, so eggs do not mature","It kills sperm in the vagina","It physically blocks sperm","It stimulates LH to release more eggs"],e:"The pill contains oestrogen and progesterone, which inhibit FSH."},
+ {t:"repro",q:"Which is a disadvantage of IVF?",o:["It has a low success rate and can be stressful","It does not use hormones","It always results in a single baby","It is always successful"],e:"IVF can be physically and emotionally stressful, has a low success rate and can cause multiple births."},
+ {t:"plants",q:"Which hormone makes a shoot grow towards light?",o:["Auxin","Gibberellin","Ethene","Insulin"],e:"Auxin causes cell elongation on the shaded side, bending the shoot towards light."},
+ {t:"plants",q:"Light shines on a shoot from the right. What happens to auxin?",o:["It moves to the shaded (left) side, where cells elongate more","It moves to the lit (right) side, where cells elongate more","It is destroyed on the shaded side","It stays at the tip and cells do not change"],e:"Auxin accumulates on the shaded side, so cells there grow longer."},
+ {t:"plants",q:"What is ethene used for in agriculture?",o:["Ripening fruit","Ending seed dormancy","Killing weeds","Making cuttings grow roots"],e:"Ethene controls ripening, so it can be used to ripen fruit during transport and storage."},
+ {t:"plants",q:"Which plant hormone is found in rooting powder?",o:["Auxin","Ethene","Gibberellin","Insulin"],e:"Auxin encourages roots to grow from cuttings."}
+];
+
+const exam = [
+ {t:"principles",m:2,q:"Define homeostasis.",a:["Regulation of the internal conditions of a cell or organism (1)","to maintain optimum conditions for function / enzyme action, in response to internal and external changes (1)"]},
+ {t:"nervous",m:4,q:"A person steps on a sharp object and pulls their foot away. Describe the pathway of this reflex action.",a:["Receptors in the skin detect the stimulus (1)","Impulse carried by a sensory neurone to the CNS (1)","Relay neurone in the spinal cord passes the impulse on (1)","Motor neurone carries the impulse to an effector (muscle) (1)","Muscle contracts, pulling the foot away (1)"],n:"Maximum 4 marks."},
+ {t:"nervous",m:3,q:"Describe how an impulse passes across a synapse.",a:["Neurotransmitter / chemical is released from the first neurone (1)","It diffuses across the gap (1)","It binds to receptor molecules on the next neurone, starting a new electrical impulse (1)"]},
+ {t:"nervous",m:3,q:"A student did the ruler drop test five times. The distances caught were 12 cm, 15 cm, 11 cm, 14 cm and 13 cm. Calculate the mean distance, and suggest one way to make the results more reliable.",a:["Total = 65 (1)","Mean = 65 ÷ 5 = 13 cm (1)","Repeat more times / use more people and recalculate the mean (1)"]},
+ {t:"endocrine",m:3,q:"Describe two differences between the nervous system and the hormonal system.",a:["Nervous: electrical impulses; hormonal: chemical messengers in the blood (1)","Nervous: fast response; hormonal: slower response (1)","Nervous: short-lived effect; hormonal: longer-lasting effect (1)"],n:"Any two differences, 1 mark each, plus 1 mark for clear comparison. Maximum 3 marks."},
+ {t:"glucose",m:4,q:"Explain how the body lowers blood glucose concentration after a meal.",a:["The pancreas detects the high blood glucose (1)","The pancreas releases insulin (1)","Insulin causes glucose to move from the blood into cells (1)","The liver and muscles convert excess glucose to glycogen for storage (1)"]},
+ {t:"glucose",m:3,q:"Compare type 1 and type 2 diabetes.",a:["Type 1: pancreas produces little or no insulin; type 2: body cells no longer respond to insulin (1)","Type 1 treated with insulin injections; type 2 treated with diet and exercise (1)","Obesity is a risk factor for type 2 (1)"]},
+ {t:"repro",m:4,q:"Describe the roles of FSH and LH in the menstrual cycle.",a:["Both are produced by the pituitary gland (1)","FSH causes an egg to mature in the ovary (1)","FSH stimulates the ovaries to produce oestrogen (1)","LH stimulates the release of the egg (ovulation) (1)"]},
+ {t:"repro",m:4,q:"Some couples use IVF to have a baby. Evaluate the use of IVF.",a:["Advantage: helps couples who cannot conceive naturally to have a baby (1)","Hormones (FSH and LH) are given to stimulate several eggs to mature, which makes success more likely (1)","Disadvantage: physically and emotionally stressful (1)","Low success rate / can result in multiple births, which carry health risks (1)"]},
+ {t:"plants",m:4,q:"Explain why a shoot grows towards a light source.",a:["Auxin is produced in the shoot tip (1)","Auxin moves to the shaded side of the shoot (1)","Cells on the shaded side elongate faster / more (1)","So the shoot bends towards the light (1)"]},
+ {t:"plants",m:3,q:"Give three uses of plant hormones in agriculture or horticulture.",a:["Auxin: selective weedkiller (1)","Auxin: rooting powder for cuttings (1)","Ethene: ripening fruit during transport or storage (1)","Gibberellins: ending seed dormancy / increasing fruit size (1)"],n:"Any three, 1 mark each."}
+];
+
+const $ = (s,r=document)=>r.querySelector(s);
+const el = (tag,cls,html)=>{const e=document.createElement(tag); if(cls)e.className=cls; if(html!==undefined)e.innerHTML=html; return e;};
+const shuffle = a=>{a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;};
+
+/* Tabs */
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
+  ['notes','cards','quiz','exam'].forEach(id=>$('#'+id).hidden = id!==b.dataset.tab);
+  window.scrollTo({top:0});
+}));
+
+/* Topic filter chips */
+function makeFilter(host,onPick){
+  const items=[['all','All topics'],...Object.entries(T)];
+  items.forEach(([k,label],i)=>{
+    const c=el('button','chip'+(i===0?' on':''),label); c.type='button'; c.dataset.k=k;
+    c.addEventListener('click',()=>{host.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===c)); onPick(k);});
+    host.appendChild(c);
+  });
+}
+
+/* Notes */
+(function(){
+  const host=$('#notes');
+  const jump=el('div','chips no-print');
+  notes.forEach(n=>{const a=el('a','chip',T[n.id]); a.href='#n-'+n.id; jump.appendChild(a);});
+  const pr=el('button','chip','Print notes'); pr.type='button'; pr.addEventListener('click',()=>window.print()); jump.appendChild(pr);
+  host.appendChild(jump);
+  notes.forEach(n=>{
+    const c=el('div','card'); c.id='n-'+n.id;
+    c.appendChild(el('h2','',T[n.id]));
+    const ul=el('ul'); n.points.forEach(p=>ul.appendChild(el('li','',p))); c.appendChild(ul);
+    if(n.flow){
+      c.appendChild(el('p','flowlabel',n.flowLabel));
+      const f=el('div','flow');
+      n.flow.forEach((s,i)=>{ if(i)f.appendChild(el('span','arr','→')); f.appendChild(el('span','step',s)); });
+      c.appendChild(f);
+    }
+    if(n.table){
+      const t=el('table'); const th=el('tr');
+      n.table.head.forEach(h=>th.appendChild(el('th','',h))); t.appendChild(th);
+      n.table.rows.forEach(r=>{const tr=el('tr'); r.forEach(x=>tr.appendChild(el('td','',x))); t.appendChild(tr);});
+      c.appendChild(t);
+    }
+    host.appendChild(c);
+  });
+})();
+
+/* Flashcards */
+let deck=[],fi=0,flipped=false;
+function setDeck(k){deck=shuffle(cards.filter(c=>k==='all'||c[2]===k)); fi=0; flipped=false; drawCard();}
+function drawCard(){
+  const c=deck[fi], b=$('#fc');
+  b.className='fc'+(flipped?' back':'');
+  b.innerHTML='<span class="side">'+(flipped?'Definition':'Term')+' · '+T[c[2]]+'</span><span class="txt">'+(flipped?c[1]:c[0])+'</span>';
+  $('#fcCount').textContent=(fi+1)+' of '+deck.length;
+}
+$('#fc').addEventListener('click',()=>{flipped=!flipped; drawCard();});
+$('#fcNext').addEventListener('click',()=>{fi=(fi+1)%deck.length; flipped=false; drawCard();});
+$('#fcPrev').addEventListener('click',()=>{fi=(fi-1+deck.length)%deck.length; flipped=false; drawCard();});
+$('#fcShuffle').addEventListener('click',()=>{deck=shuffle(deck); fi=0; flipped=false; drawCard();});
+makeFilter($('#cardFilter'),setDeck);
+setDeck('all');
+
+/* Quiz */
+let qs=[],qi=0,score=0,missed={},qFilter='all';
+function startQuiz(k){
+  qFilter=k; qi=0; score=0; missed={};
+  qs=shuffle(quiz.filter(q=>k==='all'||q.t===k)).map(q=>({...q,opts:shuffle(q.o.map((text,i)=>({text,ok:i===0})))}));
+  drawQ();
+}
+function drawQ(){
+  const host=$('#quizBody'); host.innerHTML='';
+  if(qi>=qs.length){
+    const c=el('div','card');
+    const pct=Math.round(score/qs.length*100);
+    c.appendChild(el('p','score',score+' / '+qs.length+' ('+pct+'%)'));
+    const keys=Object.keys(missed);
+    if(keys.length){
+      c.appendChild(el('p','','Topics to revisit:'));
+      const ul=el('ul'); keys.forEach(k=>ul.appendChild(el('li','',T[k]+' ('+missed[k]+' missed)'))); c.appendChild(ul);
+    } else c.appendChild(el('p','','Full marks. Try the exam questions next.'));
+    const r=el('div','row'); const b=el('button','btn primary','Try again'); b.addEventListener('click',()=>startQuiz(qFilter)); r.appendChild(b); c.appendChild(r);
+    host.appendChild(c); return;
+  }
+  const q=qs[qi];
+  const bar=el('div','bar'); bar.appendChild(el('span')); bar.firstChild.style.width=(qi/qs.length*100)+'%'; host.appendChild(bar);
+  const c=el('div','card');
+  c.appendChild(el('p','muted','Question '+(qi+1)+' of '+qs.length+' · '+T[q.t]));
+  c.appendChild(el('h2','',q.q));
+  const fbHost=el('div');
+  q.opts.forEach(o=>{
+    const b=el('button','opt',o.text); b.type='button';
+    b.addEventListener('click',()=>{
+      c.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+      c.querySelectorAll('.opt').forEach((x,i)=>{ if(q.opts[i].ok)x.classList.add('ok'); });
+      if(o.ok){score++;} else {b.classList.add('no'); missed[q.t]=(missed[q.t]||0)+1;}
+      fbHost.appendChild(el('div','fb',(o.ok?'Correct. ':'Not quite. ')+q.e));
+      const nx=el('button','btn primary',qi+1<qs.length?'Next question':'See score'); nx.addEventListener('click',()=>{qi++; drawQ();});
+      fbHost.appendChild(nx); nx.focus();
+    });
+    c.appendChild(b);
+  });
+  c.appendChild(fbHost);
+  host.appendChild(c);
+}
+makeFilter($('#quizFilter'),startQuiz);
+startQuiz('all');
+
+/* Exam questions */
+(function(){
+  const host=$('#examBody');
+  exam.forEach((x,i)=>{
+    const c=el('div','card');
+    c.appendChild(el('p','', '<span class="tag">'+T[x.t]+'</span><span class="marks">'+x.m+' mark'+(x.m>1?'s':'')+'</span>'));
+    c.appendChild(el('p','', '<strong>'+(i+1)+'.</strong> '+x.q));
+    const ta=el('textarea'); ta.placeholder='Write your answer here'; ta.setAttribute('aria-label','Your answer to question '+(i+1)); c.appendChild(ta);
+    const btn=el('button','btn','Show mark scheme'); btn.type='button';
+    const ms=el('div','ms'); ms.hidden=true;
+    const ul=el('ul'); x.a.forEach(p=>ul.appendChild(el('li','',p))); ms.appendChild(ul);
+    if(x.n) ms.appendChild(el('p','',x.n));
+    btn.addEventListener('click',()=>{ms.hidden=!ms.hidden; btn.textContent=ms.hidden?'Show mark scheme':'Hide mark scheme';});
+    c.appendChild(btn); c.appendChild(ms);
+    host.appendChild(c);
+  });
+})();
+</script>
+</body>
+</html>
